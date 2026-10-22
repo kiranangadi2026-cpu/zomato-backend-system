@@ -78,6 +78,58 @@ export async function createResturant(req, res){
 
 }
 
+export async function updateResturant(req, res){
+
+    const {id} = req.params
+    const user = req.user.id
+
+    const resturant = await resturantModel.findById(id)
+
+    if(!resturants){
+        return res.status(404).json({
+            message:"Resturant not found"
+        })
+    }
+
+    if(!resturant.owner.equals(user)){
+        return res.status(400).json({
+            message:"You have no right to update this"
+        })
+    }
+
+    const {name, city, area, cuisines, lon, lat, isOpen} =req.body
+
+    if(name != undefined){
+        resturant.name = name
+    }
+    if(city != undefined){
+        resturant.city = city
+    }
+    if(area != undefined){
+        resturant.area = area
+    }
+    if(cuisines != undefined){
+        resturant.cuisines = cuisines
+    }
+
+    const location = buildLocation(lon, lat)
+
+    if(location != undefined){
+        resturant.location = location
+    }
+    if(isOpen != undefined){
+        resturant.isOpen = isOpen
+    }
+
+    await resturant.save()
+
+    return res.status(200).json({
+        message:"Resturant saved successfully"
+    })
+
+}
+
+
 export async function deleteResturant(req, res){
 
     const {id} = req.params
